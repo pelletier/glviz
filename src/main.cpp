@@ -76,11 +76,18 @@ int main() {
     glBindVertexArray(vao);
 
     GLfloat vertices[] = {
-            -0.5f, -0.5f, -0.5f,
-            0.5f, -0.5f, 0.0f,
-            0.0f, 0.5f, 0.0f
+            0.5f,  0.5f, 0.0f,  // Top Right
+            0.5f, -0.5f, 0.0f,  // Bottom Right
+            -0.5f, -0.5f, 0.0f,  // Bottom Left
+            -0.5f,  0.5f, 0.0f   // Top Left
     };
 
+    GLuint indices[] = {  // Note that we start from 0!
+            0, 1, 3,   // First Triangle
+            1, 2, 3    // Second Triangle
+    };
+
+    // vertices
     GLuint vbo;
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -89,8 +96,17 @@ int main() {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), nullptr);
     glEnableVertexAttribArray(0);
 
+    // elements index array
+    GLuint ebo;
+    glGenBuffers(1, &ebo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
     glBindVertexArray(0);
 
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // wireframe mode
+    
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
 
@@ -99,7 +115,7 @@ int main() {
 
         glUseProgram(shader_program);
         glBindVertexArray(vao);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
 
         glfwSwapBuffers(window);
