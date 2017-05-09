@@ -12,7 +12,7 @@ namespace shader {
         std::ifstream ifs(shader_source_path, std::ios::in | std::ios::binary);
 
         if (!ifs) {
-            throw LoadException("shader: cannot open shader source file: " + shader_source_path);
+            throw ShaderException("cannot open shader source file: " + shader_source_path);
         }
 
         std::ostringstream source_stream;
@@ -34,9 +34,44 @@ namespace shader {
             GLchar info_log[info_log_size];
             glGetShaderInfoLog(shader, info_log_size, NULL, info_log);
             std::cerr << "shader: cannot compile " << shader_source_path << '\n' << info_log << std::endl;
-            throw LoadException("shader: cannot compile");
+            throw ShaderException("cannot compile");
         }
 
         return shader;
+    }
+
+    Shader::Shader(std::string vertex_source_path, std::string fragment_source_path) {
+        std::cout << "Loading and compiling shader: vertex=" << vertex_source_path << " fragment=" << fragment_source_path << std::endl;
+        GLuint vertex_shader;
+        GLuint fragment_shader;
+        try {
+            vertex_shader = load(vertex_source_path, GL_VERTEX_SHADER);
+            fragment_shader = load(fragment_source_path, GL_FRAGMENT_SHADER);
+        } catch (ShaderException e) {
+            std::cerr << "compilation failed: " << e.what() << std::endl;
+            throw e;
+        }
+
+        program_ = glCreateProgram();
+        glAttachShader(program_, vertex_shader);
+        glAttachShader(program_, fragment_shader);
+        glLinkProgram(program_);
+
+        GLint success;
+        glGetProgramiv(program_, GL_LINK_STATUS, &success);
+        if (!success) {
+            constexpr size_t info_log_size = 1024;
+            GLchar info_log[info_log_size];
+            glGetProgramInfoLog(program_, info_log_size, NULL, info_log);
+            std::cerr << "shader linking failed: " << '\n' << info_log << std::endl;
+            throw ShaderException("linking failed");
+        }
+
+        glDeleteShader(vertex_shader);
+        glDeleteShader(fragment_shader);
+    }
+
+    void Shader::use() const {
+        glUseProgram(program_);
     }
 }

@@ -7,10 +7,16 @@
 
 namespace shader {
 
-    class LoadException : public std::runtime_error {
+    class ShaderException : public std::runtime_error {
     public:
-        LoadException(std::string str) : std::runtime_error(str) {};
+        ShaderException(std::string str) : std::runtime_error("shader: " + str) {};
     };
 
-    GLuint load(std::string shader_source_path, GLenum shader_type);
+    class Shader {
+    public:
+        Shader(std::string vertex_source_path, std::string fragment_source_path);
+        void use() const;
+    private:
+        GLuint program_;
+    };
 }

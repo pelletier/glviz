@@ -43,33 +43,8 @@ int main() {
 
     glfwSetKeyCallback(window, key_callback);
 
-    GLuint simple_vertex_shader;
-    GLuint simple_fragment_shader;
-    try {
-        simple_vertex_shader = shader::load("simple.vert", GL_VERTEX_SHADER);
-        simple_fragment_shader = shader::load("simple.frag", GL_FRAGMENT_SHADER);
-    } catch (shader::LoadException e) {
-        std::cerr << "shaders compilation failed: " << e.what() << std::endl;
-        return EXIT_FAILURE;
-    }
-
-    GLuint shader_program = glCreateProgram();
-    glAttachShader(shader_program, simple_vertex_shader);
-    glAttachShader(shader_program, simple_fragment_shader);
-    glLinkProgram(shader_program);
-
-    GLint success;
-    glGetProgramiv(shader_program, GL_LINK_STATUS, &success);
-    if (!success) {
-        constexpr size_t info_log_size = 1024;
-        GLchar info_log[info_log_size];
-        glGetProgramInfoLog(shader_program, info_log_size, NULL, info_log);
-        std::cerr << "shader linking failed: " << '\n' << info_log << std::endl;
-        return EXIT_FAILURE;
-    }
-
-    glDeleteShader(simple_vertex_shader);
-    glDeleteShader(simple_fragment_shader);
+    std::cout << "Loading shaders" << std::endl;
+    shader::Shader simple_shader("simple.vert", "simple.frag");
 
     GLuint vao;
     glGenVertexArrays(1, &vao);
@@ -106,14 +81,14 @@ int main() {
 
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // wireframe mode
-    
+
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glUseProgram(shader_program);
+        simple_shader.use();
         glBindVertexArray(vao);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
