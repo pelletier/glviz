@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.7.1)
 project(glviz)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
-add_executable(glviz main.cpp)
+add_executable(glviz src/main.cpp src/shader.cpp)
 
 set_property(TARGET glviz PROPERTY CXX_STANDARD 14)
 set_property(TARGET glviz PROPERTY CXX_STANDARD_REQUIRED ON)
