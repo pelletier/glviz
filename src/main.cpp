@@ -2,6 +2,7 @@
 
 #include "gl.h"
 #include "shader.h"
+#include "obj.h"
 
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode) {
@@ -46,39 +47,7 @@ int main() {
     std::cout << "Loading shaders" << std::endl;
     shader::Shader simple_shader("simple.vert", "simple.frag");
 
-    GLuint vao;
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
-
-    GLfloat vertices[] = {
-            0.5f,  0.5f, 0.0f,  // Top Right
-            0.5f, -0.5f, 0.0f,  // Bottom Right
-            -0.5f, -0.5f, 0.0f,  // Bottom Left
-            -0.5f,  0.5f, 0.0f   // Top Left
-    };
-
-    GLuint indices[] = {  // Note that we start from 0!
-            0, 1, 3,   // First Triangle
-            1, 2, 3    // Second Triangle
-    };
-
-    // vertices
-    GLuint vbo;
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), nullptr);
-    glEnableVertexAttribArray(0);
-
-    // elements index array
-    GLuint ebo;
-    glGenBuffers(1, &ebo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-    glBindVertexArray(0);
-
+    Obj obj("/Users/tpelletier/code/pelletier/glviz/models/cube/", "cube.obj");
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // wireframe mode
 
@@ -89,9 +58,7 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT);
 
         simple_shader.use();
-        glBindVertexArray(vao);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
+        obj.draw();
 
         glfwSwapBuffers(window);
     }

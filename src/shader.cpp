@@ -74,4 +74,8 @@ namespace shader {
     void Shader::use() const {
         glUseProgram(program_);
     }
+
+    GLuint Shader::program() const {
+        return program_;
+    }
 }
