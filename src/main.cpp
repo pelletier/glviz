@@ -6,6 +6,7 @@
 #include "Obj.h"
 #include "Xyz.h"
 #include "Renderer.h"
+#include "Mouse.h"
 
 static bool keys[1024];
 
@@ -27,28 +28,6 @@ static GLfloat mouse_x = 0;
 static GLfloat mouse_y = 0;
 static const GLfloat mouse_sensitivity = 0.1f;
 
-void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
-    mouse_x = (GLfloat) xpos;
-    mouse_y = (GLfloat) ypos;
-}
-
-static bool mouse_right_button_down = false;
-
-void mouse_button_callback(GLFWwindow* window, int button, int action, int mode) {
-    if (button == GLFW_MOUSE_BUTTON_RIGHT) {
-        switch (action) {
-            case GLFW_PRESS:
-                mouse_right_button_down = true;
-                first_mouse_pos = true;
-                break;
-            case GLFW_RELEASE:
-                mouse_right_button_down = false;
-                break;
-            default:
-                break;
-        }
-    }
-}
 
 int main() {
     glfwInit();
@@ -83,11 +62,8 @@ int main() {
     glEnable(GL_DEPTH_TEST);
 
     glfwSetKeyCallback(window, key_callback);
-    //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    glfwSetCursorPosCallback(window, mouse_callback);
-    glfwSetMouseButtonCallback(window, mouse_button_callback);
-    mouse_last_x = width / 2;
-    mouse_last_y = height / 2;
+    Mouse::bind_glfw_callbacks(window);
+    Mouse& mouse = Mouse::global_instance();
 
     std::cout << "Loading shaders" << std::endl;
     shader::Shader simple_shader("simple.vert", "simple.frag");
@@ -113,29 +89,17 @@ int main() {
 
         // Process camera-related events
 
-        if (first_mouse_pos) {
-            first_mouse_pos = false;
-            mouse_last_y = mouse_y;
-            mouse_last_x = mouse_x;
-        }
+        if (mouse.is_right_button_down()) {
+          const glm::vec2 offset = mouse.get_offset();
 
-        if (mouse_right_button_down) {
-            GLfloat mouse_x_offset = (GLfloat) (mouse_x - mouse_last_x) * mouse_sensitivity;
-            GLfloat mouse_y_offset =
-                    (GLfloat) (mouse_last_y - mouse_y) * mouse_sensitivity; // reverse to enable Y inversion
-            mouse_last_x = mouse_x;
-            mouse_last_y = mouse_y;
-
-            camera_pitch += mouse_y_offset;
+            camera_pitch += offset.y;
             if (camera_pitch > 89.0f) {
                 camera_pitch = 89.0f;
             } else if (camera_pitch < -89.0f) {
                 camera_pitch = -89.0f;
             }
 
-            camera_yaw += mouse_x_offset;
-
-            std::cout << "mouse_x_offset= " << mouse_x_offset << " mouse_y_offset=" << mouse_y_offset << " pitch = " << camera_pitch << " yaw = " << camera_yaw << std::endl;
+            camera_yaw += offset.x;
         }
 
         static const GLfloat camera_speed = delta_time * 0.05f;
@@ -146,9 +110,6 @@ int main() {
         GLfloat sin_pitch = glm::sin(glm::radians(camera_pitch));
         GLfloat cos_yaw = glm::cos(glm::radians(camera_yaw));
         GLfloat sin_yaw = glm::sin(glm::radians(camera_yaw));
-
-        std::cout << "PITCH=" << camera_pitch << " COS()=" << cos_pitch << " SIN()=" << sin_pitch << std::endl;
-        std::cout << "YAW=" << camera_yaw << " COS()=" << cos_yaw << " SIN()=" << sin_yaw << std::endl;
 
         glm::vec3 camera_direction = glm::normalize(glm::vec3(cos_pitch * cos_yaw,
                                                               sin_pitch,
