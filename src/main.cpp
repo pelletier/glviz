@@ -2,11 +2,14 @@
 
 #include "gl.h"
 #include "glm.h"
+#include "Freetype.h"
+#include "Font.h"
 #include "Shader.h"
 #include "Obj.h"
 #include "Xyz.h"
 #include "Renderer.h"
 #include "Mouse.h"
+#include "Text.h"
 
 static bool keys[1024];
 
@@ -52,10 +55,15 @@ int main() {
   glfwGetFramebufferSize(window, &width, &height);
   glViewport(0, 0, width, height);
   glEnable(GL_DEPTH_TEST);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   glfwSetKeyCallback(window, key_callback);
   Mouse::bind_glfw_callbacks(window);
   Mouse &mouse = Mouse::global_instance();
+
+  Freetype freetype;
+  font::Font consolas_font(freetype, "/Users/tpelletier/code/pelletier/glviz/fonts/consolas.ttf");
 
   std::cout << "Loading shaders" << std::endl;
   shader::Shader simple_shader("simple.vert", "simple.frag");
@@ -63,15 +71,16 @@ int main() {
 
   Obj obj("/Users/tpelletier/code/pelletier/glviz/models/cube/", "cube.Obj", simple_shader);
 
-  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // wireframe mode
-
   glm::mat4 projection = glm::perspective(45.0f, (GLfloat) width / (GLfloat) height, 0.1f, 100.0f);
-  Renderer renderer;
+  Renderer renderer(width, height);
+  renderer.wireframe_mode = true;
 
   GLfloat last_time = 0.0f;
 
   GLfloat camera_pitch = 0.0f;
   GLfloat camera_yaw = -90.0f;
+
+  Text text = {"hello world", glm::vec2(100, 100), 1.0f, glm::vec3(1.0f, 1.0f, 1.0f), consolas_font};
 
   while (!glfwWindowShouldClose(window)) {
     GLfloat current_time = (GLfloat) glfwGetTime();
@@ -97,7 +106,6 @@ int main() {
     static const GLfloat camera_speed = delta_time * 0.05f;
     static glm::vec3 camera_pos(0.0f, 0.0f, 3.0f);
 
-
     GLfloat cos_pitch = glm::cos(glm::radians(camera_pitch));
     GLfloat sin_pitch = glm::sin(glm::radians(camera_pitch));
     GLfloat cos_yaw = glm::cos(glm::radians(camera_yaw));
@@ -122,10 +130,8 @@ int main() {
     }
 
     // Compute camera
-    std::cout << "direction = " << glm::to_string(camera_direction) << std::endl;
     glm::vec3 camera_target(camera_pos + camera_direction);
     glm::mat4 view = projection * glm::lookAt(camera_pos, camera_target, camera_up);
-
 
     // Render scene!
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -133,6 +139,7 @@ int main() {
 
     renderer.render(obj, view);
     renderer.render(xyz, view);
+    renderer.render(text);
 
     glfwSwapBuffers(window);
   }

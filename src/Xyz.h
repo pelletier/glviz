@@ -12,11 +12,8 @@ public:
 
     // Implement the Drawable interface
     GLenum polygon_type() const override;
-
     GLsizei indices_count() const override;
-
     GLuint vao() const override;
-
     const shader::Shader &shader() const override;
 
 private:
