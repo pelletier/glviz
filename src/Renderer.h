@@ -11,7 +11,7 @@ public:
      * @param drawable
      * @param transfom
      */
-    void render(const Drawable& drawable, const glm::mat4& transfom) const;
+    void render(const Drawable &drawable, const glm::mat4 &transfom) const;
 
 private:
 };

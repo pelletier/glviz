@@ -3,11 +3,11 @@
 /**
    GLFW callbacks for mouse actions.
 */
-void mouse_movement_glfw_callback(GLFWwindow* window, double xpos, double ypos) {
+void mouse_movement_glfw_callback(GLFWwindow *window, double xpos, double ypos) {
   Mouse::global_instance().glfw_mouse_movement_callback(xpos, ypos);
 }
 
-void mouse_button_glfw_callback(GLFWwindow* window, int button, int action, int mode) {
+void mouse_button_glfw_callback(GLFWwindow *window, int button, int action, int mode) {
   Mouse::global_instance().glfw_mouse_button_callback(button, action, mode);
 }
 
@@ -16,7 +16,7 @@ void Mouse::bind_glfw_callbacks(GLFWwindow *window) {
   glfwSetMouseButtonCallback(window, mouse_button_glfw_callback);
 }
 
-Mouse& Mouse::global_instance() {
+Mouse &Mouse::global_instance() {
   static Mouse global_instance;
   return global_instance;
 }
@@ -24,15 +24,15 @@ Mouse& Mouse::global_instance() {
 void Mouse::glfw_mouse_button_callback(int button, int action, int mode) {
   if (button == GLFW_MOUSE_BUTTON_RIGHT) {
     switch (action) {
-    case GLFW_PRESS:
-      right_button_down_ = true;
-      first_pos_ = true;
-      break;
-    case GLFW_RELEASE:
-      right_button_down_ = false;
-      break;
-    default:
-      break;
+      case GLFW_PRESS:
+        right_button_down_ = true;
+        first_pos_ = true;
+        break;
+      case GLFW_RELEASE:
+        right_button_down_ = false;
+        break;
+      default:
+        break;
     }
   }
 }
