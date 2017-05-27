@@ -8,9 +8,22 @@
 #include "Renderer.h"
 
 
+static const GLfloat camera_speed = 0.05f;
+static glm::vec3 camera_pos(0.0f, 0.0f, 3.0f);
+static glm::vec3 camera_direction(0.0f, 0.0f, -1.0f);
+static glm::vec3 camera_up(0.0f, 1.0f, 0.0f);
+
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode) {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, GL_TRUE);
+    } else if (key == GLFW_KEY_W) {
+        camera_pos += camera_speed * camera_direction;
+    } else if (key == GLFW_KEY_S) {
+        camera_pos -= camera_speed * camera_direction;
+    } else if (key == GLFW_KEY_A) {
+        camera_pos -= camera_speed * glm::normalize(glm::cross(camera_direction, camera_up));
+    } else if (key == GLFW_KEY_D) {
+        camera_pos += camera_speed * glm::normalize(glm::cross(camera_direction, camera_up));
     }
 }
 
@@ -62,18 +75,10 @@ int main() {
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
 
-        const GLfloat time = (const GLfloat) glfwGetTime();
+//        const GLfloat time = (const GLfloat) glfwGetTime();
 
-        GLfloat radius = 10.0f;
-        GLfloat cam_x = (GLfloat) (sin(time) * radius);
-        GLfloat cam_z = (GLfloat) (cos(time) * radius);
-
-        glm::vec3 camera_pos(cam_x, 0.0f, cam_z);
-        glm::vec3 camera_target(0.0f, 0.0f, 0.0f);
-        glm::vec3 up(0.0f, 1.0f, 0.0f);
-
-
-        glm::mat4 view = projection * glm::lookAt(camera_pos, camera_target, up);
+        glm::vec3 camera_target(camera_pos + camera_direction);
+        glm::mat4 view = projection * glm::lookAt(camera_pos, camera_target, camera_up);
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
