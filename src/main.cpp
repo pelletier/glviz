@@ -25,11 +25,29 @@ static GLfloat mouse_last_x = 0;
 static GLfloat mouse_last_y = 0;
 static GLfloat mouse_x = 0;
 static GLfloat mouse_y = 0;
-static const GLfloat mouse_sensitivity = 0.05f;
+static const GLfloat mouse_sensitivity = 0.1f;
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
     mouse_x = (GLfloat) xpos;
     mouse_y = (GLfloat) ypos;
+}
+
+static bool mouse_right_button_down = false;
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mode) {
+    if (button == GLFW_MOUSE_BUTTON_RIGHT) {
+        switch (action) {
+            case GLFW_PRESS:
+                mouse_right_button_down = true;
+                first_mouse_pos = true;
+                break;
+            case GLFW_RELEASE:
+                mouse_right_button_down = false;
+                break;
+            default:
+                break;
+        }
+    }
 }
 
 int main() {
@@ -65,8 +83,9 @@ int main() {
     glEnable(GL_DEPTH_TEST);
 
     glfwSetKeyCallback(window, key_callback);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetMouseButtonCallback(window, mouse_button_callback);
     mouse_last_x = width / 2;
     mouse_last_y = height / 2;
 
@@ -100,21 +119,24 @@ int main() {
             mouse_last_x = mouse_x;
         }
 
-        GLfloat mouse_x_offset = (GLfloat) (mouse_x - mouse_last_x) * mouse_sensitivity;
-        GLfloat mouse_y_offset = (GLfloat) (mouse_last_y - mouse_y) * mouse_sensitivity; // reverse to enable Y inversion
-        mouse_last_x = mouse_x;
-        mouse_last_y = mouse_y;
+        if (mouse_right_button_down) {
+            GLfloat mouse_x_offset = (GLfloat) (mouse_x - mouse_last_x) * mouse_sensitivity;
+            GLfloat mouse_y_offset =
+                    (GLfloat) (mouse_last_y - mouse_y) * mouse_sensitivity; // reverse to enable Y inversion
+            mouse_last_x = mouse_x;
+            mouse_last_y = mouse_y;
 
-        camera_pitch += mouse_y_offset;
-        if (camera_pitch > 89.0f) {
-            camera_pitch = 89.0f;
-        } else if (camera_pitch < -89.0f) {
-            camera_pitch = -89.0f;
+            camera_pitch += mouse_y_offset;
+            if (camera_pitch > 89.0f) {
+                camera_pitch = 89.0f;
+            } else if (camera_pitch < -89.0f) {
+                camera_pitch = -89.0f;
+            }
+
+            camera_yaw += mouse_x_offset;
+
+            std::cout << "mouse_x_offset= " << mouse_x_offset << " mouse_y_offset=" << mouse_y_offset << " pitch = " << camera_pitch << " yaw = " << camera_yaw << std::endl;
         }
-
-        camera_yaw += mouse_x_offset;
-
-        std::cout << "mouse_x_offset= " << mouse_x_offset << " mouse_y_offset=" << mouse_y_offset << " pitch = " << camera_pitch << " yaw = " << camera_yaw << std::endl;
 
         static const GLfloat camera_speed = delta_time * 0.05f;
         static glm::vec3 camera_pos(0.0f, 0.0f, 3.0f);
