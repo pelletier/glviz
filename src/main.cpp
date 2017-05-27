@@ -44,34 +44,42 @@ int main() {
     int height;
     glfwGetFramebufferSize(window, &width, &height);
     glViewport(0, 0, width, height);
+    glEnable(GL_DEPTH_TEST);
 
     glfwSetKeyCallback(window, key_callback);
 
     std::cout << "Loading shaders" << std::endl;
     shader::Shader simple_shader("simple.vert", "simple.frag");
+    Xyz xyz;
 
     Obj obj("/Users/tpelletier/code/pelletier/glviz/models/cube/", "cube.Obj", simple_shader);
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // wireframe mode
 
-    glm::mat4 camera_transform_mat;
-    camera_transform_mat = glm::rotate(camera_transform_mat, glm::radians(45.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    camera_transform_mat = glm::scale(camera_transform_mat, glm::vec3(0.5f, 0.5f, 0.5f));
-
-    std::cout << glm::to_string(camera_transform_mat) << std::endl;
-
-    Xyz xyz;
-
+    glm::mat4 projection = glm::perspective(45.0f, (GLfloat)width / (GLfloat)height, 0.1f, 100.0f);
     Renderer renderer;
 
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
 
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        const GLfloat time = (const GLfloat) glfwGetTime();
 
-        renderer.render(obj, camera_transform_mat);
-        renderer.render(xyz, camera_transform_mat);
+        GLfloat radius = 10.0f;
+        GLfloat cam_x = (GLfloat) (sin(time) * radius);
+        GLfloat cam_z = (GLfloat) (cos(time) * radius);
+
+        glm::vec3 camera_pos(cam_x, 0.0f, cam_z);
+        glm::vec3 camera_target(0.0f, 0.0f, 0.0f);
+        glm::vec3 up(0.0f, 1.0f, 0.0f);
+
+
+        glm::mat4 view = projection * glm::lookAt(camera_pos, camera_target, up);
+
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        renderer.render(obj, view);
+        renderer.render(xyz, view);
 
         glfwSwapBuffers(window);
     }
