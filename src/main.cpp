@@ -7,23 +7,16 @@
 #include "Xyz.h"
 #include "Renderer.h"
 
-
-static const GLfloat camera_speed = 0.05f;
-static glm::vec3 camera_pos(0.0f, 0.0f, 3.0f);
-static glm::vec3 camera_direction(0.0f, 0.0f, -1.0f);
-static glm::vec3 camera_up(0.0f, 1.0f, 0.0f);
+static bool keys[1024];
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode) {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, GL_TRUE);
-    } else if (key == GLFW_KEY_W) {
-        camera_pos += camera_speed * camera_direction;
-    } else if (key == GLFW_KEY_S) {
-        camera_pos -= camera_speed * camera_direction;
-    } else if (key == GLFW_KEY_A) {
-        camera_pos -= camera_speed * glm::normalize(glm::cross(camera_direction, camera_up));
-    } else if (key == GLFW_KEY_D) {
-        camera_pos += camera_speed * glm::normalize(glm::cross(camera_direction, camera_up));
+    }
+    if (action == GLFW_PRESS) {
+        keys[key] = true;
+    } else if (action == GLFW_RELEASE) {
+        keys[key] = false;
     }
 }
 
@@ -72,11 +65,35 @@ int main() {
     glm::mat4 projection = glm::perspective(45.0f, (GLfloat)width / (GLfloat)height, 0.1f, 100.0f);
     Renderer renderer;
 
+    GLfloat last_time = 0.0f;
     while (!glfwWindowShouldClose(window)) {
+        GLfloat current_time = (GLfloat) glfwGetTime();
+        GLfloat delta_time = current_time - last_time;
+
         glfwPollEvents();
+
+        // Process keyboard events
+        static const GLfloat camera_speed = delta_time * 0.05f;
+        static glm::vec3 camera_pos(0.0f, 0.0f, 3.0f);
+        static glm::vec3 camera_direction(0.0f, 0.0f, -1.0f);
+        static glm::vec3 camera_up(0.0f, 1.0f, 0.0f);
+
+        if (keys[GLFW_KEY_W]) {
+            camera_pos += camera_speed * camera_direction;
+        }
+        if (keys[GLFW_KEY_S]) {
+            camera_pos -= camera_speed * camera_direction;
+        }
+        if (keys[GLFW_KEY_A]) {
+            camera_pos -= camera_speed * glm::normalize(glm::cross(camera_direction, camera_up));
+        }
+        if (keys[GLFW_KEY_D]) {
+            camera_pos += camera_speed * glm::normalize(glm::cross(camera_direction, camera_up));
+        }
 
 //        const GLfloat time = (const GLfloat) glfwGetTime();
 
+        // Compute camera
         glm::vec3 camera_target(camera_pos + camera_direction);
         glm::mat4 view = projection * glm::lookAt(camera_pos, camera_target, camera_up);
 
