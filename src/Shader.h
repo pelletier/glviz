@@ -9,7 +9,7 @@ namespace shader {
 
     class ShaderException : public std::runtime_error {
     public:
-        ShaderException(std::string str) : std::runtime_error("shader: " + str) {};
+        ShaderException(std::string str) : std::runtime_error("Shader: " + str) {};
     };
 
     class Shader {

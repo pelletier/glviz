@@ -1,7 +1,7 @@
 #pragma once
 
 #include "gl.h"
-#include "shader.h"
+#include "Shader.h"
 
 class Drawable {
 public:

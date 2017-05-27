@@ -1,4 +1,4 @@
-#include "shader.h"
+#include "Shader.h"
 
 #include <fstream>
 #include <sstream>
@@ -12,7 +12,7 @@ namespace shader {
         std::ifstream ifs(shader_source_path, std::ios::in | std::ios::binary);
 
         if (!ifs) {
-            throw ShaderException("cannot open shader source file: " + shader_source_path);
+            throw ShaderException("cannot open Shader source file: " + shader_source_path);
         }
 
         std::ostringstream source_stream;
@@ -33,7 +33,7 @@ namespace shader {
             constexpr size_t info_log_size = 1024;
             GLchar info_log[info_log_size];
             glGetShaderInfoLog(shader, info_log_size, NULL, info_log);
-            std::cerr << "shader: cannot compile " << shader_source_path << '\n' << info_log << std::endl;
+            std::cerr << "Shader: cannot compile " << shader_source_path << '\n' << info_log << std::endl;
             throw ShaderException("cannot compile");
         }
 
@@ -41,7 +41,7 @@ namespace shader {
     }
 
     Shader::Shader(std::string vertex_source_path, std::string fragment_source_path) {
-        std::cout << "Loading and compiling shader: vertex=" << vertex_source_path << " fragment=" << fragment_source_path << std::endl;
+        std::cout << "Loading and compiling Shader: vertex=" << vertex_source_path << " fragment=" << fragment_source_path << std::endl;
         GLuint vertex_shader;
         GLuint fragment_shader;
         try {
@@ -63,7 +63,7 @@ namespace shader {
             constexpr size_t info_log_size = 1024;
             GLchar info_log[info_log_size];
             glGetProgramInfoLog(program_, info_log_size, NULL, info_log);
-            std::cerr << "shader linking failed: " << '\n' << info_log << std::endl;
+            std::cerr << "Shader linking failed: " << '\n' << info_log << std::endl;
             throw ShaderException("linking failed");
         }
 

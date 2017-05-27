@@ -2,7 +2,7 @@
 
 #include "gl.h"
 #include "glm.h"
-#include "shader.h"
+#include "Shader.h"
 #include "Obj.h"
 #include "Xyz.h"
 #include "Renderer.h"
