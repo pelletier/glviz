@@ -80,7 +80,7 @@ int main() {
   GLfloat camera_pitch = 0.0f;
   GLfloat camera_yaw = -90.0f;
 
-  Text text = {"hello world", glm::vec2(100, 100), 1.0f, glm::vec3(1.0f, 1.0f, 1.0f), consolas_font};
+  Text text = {"hello world", glm::vec2(200, 100), 1.0f, glm::vec3(1.0f, 1.0f, 1.0f), consolas_font};
 
   while (!glfwWindowShouldClose(window)) {
     GLfloat current_time = (GLfloat) glfwGetTime();

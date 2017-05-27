@@ -19,6 +19,8 @@ public:
   void render(const Text& text);
 
 private:
+  GLfloat screen_width_;
+  GLfloat screen_height_;
   shader::Shader text_shader_;
   glm::mat4 overlay_projection_;
   GLuint text_vao_;

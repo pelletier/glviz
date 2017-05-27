@@ -29,7 +29,7 @@ void Renderer::render(const Text &text) {
     const font::Character& ch = text.font.chars.at(c);
 
     GLfloat x_pos = x + ch.bearing.x * text.scale;
-    GLfloat y_pos = text.position.y - (ch.size.y - ch.bearing.y) * text.scale;
+    GLfloat y_pos = screen_height_ - text.position.y - (ch.size.y - ch.bearing.y) * text.scale;
     GLfloat w = ch.size.x * text.scale;
     GLfloat h = ch.size.y * text.scale;
 
@@ -61,8 +61,10 @@ void Renderer::render(const Text &text) {
 }
 
 Renderer::Renderer(int screen_width, int screen_height)
-    : text_shader_("text.vert", "text.frag") {
-  overlay_projection_ = glm::ortho(0.0f, (GLfloat) screen_width, 0.0f, (GLfloat) screen_height); // puts the coords to bottom left corner
+    : screen_width_(screen_width)
+    , screen_height_(screen_height)
+    , text_shader_("text.vert", "text.frag") {
+  overlay_projection_ = glm::ortho(0.0f, screen_width_, 0.0f, screen_height_); // puts the coords to bottom left corner
 
   // should be reused across text renders
   glGenVertexArrays(1, &text_vao_);
