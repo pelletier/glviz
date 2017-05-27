@@ -1,11 +1,11 @@
 #include <iostream>
-#include "obj.h"
+#include "Obj.h"
 
 #define TINYOBJLOADER_IMPLEMENTATION // define this in only *one* .cc
 #include "tiny_obj_loader.h"
 
 // base must ends with a /
-Obj::Obj(std::string base, std::string file_name) {
+Obj::Obj(std::string base, std::string file_name, shader::Shader& shader) : shader_(shader) {
     tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;
     std::vector<tinyobj::material_t> materials;
@@ -75,8 +75,18 @@ Obj::Obj(std::string base, std::string file_name) {
     glBindVertexArray(0);
 }
 
-void Obj::draw() const {
-    glBindVertexArray(vao_);
-    glDrawElements(GL_TRIANGLES, indices_size_, GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
+GLenum Obj::polygon_type() const {
+    return GL_TRIANGLES;
+}
+
+GLsizei Obj::indices_count() const {
+    return indices_size_;
+}
+
+GLuint Obj::vao() const {
+    return vao_;
+}
+
+const shader::Shader &Obj::shader() const {
+    return shader_;
 }

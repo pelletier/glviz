@@ -1,8 +1,11 @@
 #include <iostream>
 
 #include "gl.h"
+#include "glm.h"
 #include "shader.h"
-#include "obj.h"
+#include "Obj.h"
+#include "Xyz.h"
+#include "Renderer.h"
 
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode) {
@@ -47,9 +50,19 @@ int main() {
     std::cout << "Loading shaders" << std::endl;
     shader::Shader simple_shader("simple.vert", "simple.frag");
 
-    Obj obj("/Users/tpelletier/code/pelletier/glviz/models/cube/", "cube.obj");
+    Obj obj("/Users/tpelletier/code/pelletier/glviz/models/cube/", "cube.Obj", simple_shader);
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // wireframe mode
+
+    glm::mat4 camera_transform_mat;
+    camera_transform_mat = glm::rotate(camera_transform_mat, glm::radians(45.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    camera_transform_mat = glm::scale(camera_transform_mat, glm::vec3(0.5f, 0.5f, 0.5f));
+
+    std::cout << glm::to_string(camera_transform_mat) << std::endl;
+
+    Xyz xyz;
+
+    Renderer renderer;
 
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
@@ -57,8 +70,8 @@ int main() {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        simple_shader.use();
-        obj.draw();
+        renderer.render(obj, camera_transform_mat);
+        renderer.render(xyz, camera_transform_mat);
 
         glfwSwapBuffers(window);
     }

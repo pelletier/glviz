@@ -29,7 +29,7 @@ THE SOFTWARE.
 // version 1.0.3 : Support parsing texture options(#85)
 // version 1.0.2 : Improve parsing speed by about a factor of 2 for large
 // files(#105)
-// version 1.0.1 : Fixes a shape is lost if obj ends with a 'usemtl'(#104)
+// version 1.0.1 : Fixes a shape is lost if Obj ends with a 'usemtl'(#104)
 // version 1.0.0 : Change data structure. Change license from BSD to MIT.
 //
 
@@ -1135,7 +1135,7 @@ void LoadMtl(std::map<std::string, int> *material_map,
       } else {
         // We invert value of Tr(assume Tr is in range [0, 1])
         // NOTE: Interpretation of Tr is application(exporter) dependent. For
-        // some application(e.g. 3ds max obj exporter), Tr = d(Issue 43)
+        // some application(e.g. 3ds max Obj exporter), Tr = d(Issue 43)
         material.dissolve = 1.0f - parseReal(&token);
       }
       has_tr = true;
