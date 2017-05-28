@@ -89,13 +89,10 @@ Obj::Obj(std::string base, std::string file_name, shader::Shader& shader) : shad
   std::map<int, std::vector<GLuint>> vertex_index_per_mat;
 
   for (const tinyobj::shape_t &s : shapes) {
-    std::cout << "Shape " << s.name << std::endl;
     for (size_t triangle_idx = 0; triangle_idx < s.mesh.indices.size() / 3; ++triangle_idx) {
-      std::cout << "Triangle " << triangle_idx << std::endl;
       int material_id = s.mesh.material_ids[triangle_idx];
       // for each vertex of the triangle
       for (int i = 0; i < 3; ++i) {
-        std::cout << "Vertex " << i << " ";
         const tinyobj::index_t &vertex_indices = s.mesh.indices[triangle_idx * 3 + i];
 
         vertex_attrs_per_mat[material_id].push_back(attrib.vertices[vertex_indices.vertex_index * 3 + 0]); // x
@@ -137,16 +134,6 @@ Obj::Obj(std::string base, std::string file_name, shader::Shader& shader) : shad
 
     // unbind vao
     glBindVertexArray(0);
-
-    std::cout << "Displaying VAO " << vao << std::endl;
-    for (size_t i = 0; i < entry.second.size(); ++i) {
-      GLuint idx = entry.second[i];
-      std::cout << "i="  << i << " "
-                << idx << " "
-                << "(" << attrs[idx * 5 + 0] << "," << attrs[idx * 5 + 1] << "," << attrs[idx * 5 + 2] << ") "
-                << "(" << attrs[idx * 5 + 3] << "," << attrs[idx * 5 + 4] << ")"
-                << std::endl;
-    }
 
     vaos.push_back(vao);
     indices_counts.push_back((GLsizei) entry.second.size());
