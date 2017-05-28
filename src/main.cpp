@@ -71,7 +71,7 @@ int main() {
   shader::Shader simple_shader("simple.vert", "simple.frag");
   Xyz xyz;
 
-  Obj obj("/Users/tpelletier/code/pelletier/glviz/models/cube/", "cube.obj", simple_shader);
+  Obj obj("/Users/tpelletier/code/pelletier/glviz/models/teapot/", "teapot.obj", simple_shader);
 
   glm::mat4 projection = glm::perspective(45.0f, (GLfloat) width / (GLfloat) height, 0.1f, 10000.0f);
   Renderer renderer(width, height);
@@ -92,9 +92,20 @@ int main() {
 
     glm::vec3 camera_target;
 
+    if (keys[GLFW_KEY_SPACE]) {
+      if (camera.mode == camera::FREE_FLIGHT) {
+        camera.mode = camera::CENTERED;
+        camera.offset_speed(camera.base_speed() * 9.0f);
+      } else if (camera.mode == camera::CENTERED) {
+        camera.mode = camera::FREE_FLIGHT;
+        camera.offset_speed(camera.base_speed() * -0.9f);
+      }
+      keys[GLFW_KEY_SPACE] = false; // XXX: not clean, but good enough for now.
+    }
+
     if (camera.mode == camera::FREE_FLIGHT) {
       camera.offset_speed(-mouse.get_scroll_offset().y);
-      const GLfloat camera_speed = delta_time * camera.base_speed();
+      const GLfloat camera_speed = delta_time * camera.base_speed() * 0.3f;
 
       if (mouse.is_right_button_down()) {
         const glm::vec2 offset = mouse.get_offset();
@@ -117,6 +128,14 @@ int main() {
       }
       camera_target = camera.pos + camera.direction;
     } else if (camera.mode == camera::CENTERED) {
+
+      if (keys[GLFW_KEY_W]) {
+        camera.offset_speed(0.5);
+      }
+      if (keys[GLFW_KEY_S]) {
+        camera.offset_speed(-0.5);
+      }
+
       const GLfloat camera_speed = delta_time * camera.base_speed();
       const glm::vec3 center(0, 0, 0);
       const glm::vec3 direction = glm::normalize(center - camera.pos);
@@ -157,6 +176,7 @@ int main() {
 
     std::ostringstream str;
     str << "elapsed time (s): " << delta_time << '\n'
+        << "camera mode: " << camera::modes_names[camera.mode] << '\n'
         << "camera base speed: " << camera.base_speed() << '\n'
         << "camera position: " << camera.pos.x << ","  << camera.pos.y << "," << camera.pos.z << '\n'
         << "fps: " << int(1.0f / delta_time);

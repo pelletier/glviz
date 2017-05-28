@@ -10,7 +10,7 @@ namespace camera {
     FREE_FLIGHT,
   };
 
-  static const Mode all_modes[] = {CENTERED, FREE_FLIGHT};
+  static const std::string modes_names[] = {"CENTERED", "FREE_FLIGHT"};
 
   class Camera {
   public:
@@ -28,7 +28,7 @@ namespace camera {
     void update_direction_from_angles();
 
   private:
-    const GLfloat base_max_speed_ = 70.f;
+    const GLfloat base_max_speed_ = 100.f;
     const GLfloat base_min_speed_ = 0.01f;
     GLfloat pitch_ = 0.0f;
     GLfloat yaw_ = -90.0f;
