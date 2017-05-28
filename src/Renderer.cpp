@@ -12,6 +12,20 @@ void Renderer::render(const Drawable &drawable, const glm::mat4 &transfom) const
   glBindVertexArray(0);
 }
 
+void Renderer::render(const Obj &obj, const glm::mat4 &transfom) const {
+  const shader::Shader& shader = obj.shader;
+  GLint transformLoc = glGetUniformLocation(shader.program(), "transform"); // TODO: make entry point more flexible
+  glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transfom));
+  shader.use();
+
+  for (size_t i = 0; i < obj.vaos.size(); ++i) {
+    glBindTexture(GL_TEXTURE_2D, obj.vao_to_texture[i]);
+    glBindVertexArray(obj.vaos[i]);
+    glDrawElements(GL_TRIANGLES, obj.indices_counts[i], GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
+  }
+}
+
 void Renderer::render(const Text &text) {
   if (wireframe_mode) {
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);

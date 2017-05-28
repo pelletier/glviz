@@ -3,6 +3,7 @@
 #include "glm.h"
 #include "Drawable.h"
 #include "Text.h"
+#include "Obj.h"
 
 class Renderer {
 public:
@@ -16,6 +17,7 @@ public:
    * @param transfom
    */
   void render(const Drawable &drawable, const glm::mat4 &transfom) const;
+  void render(const Obj& obj, const glm::mat4 &transfom) const;
   void render(const Text& text);
 
 private:

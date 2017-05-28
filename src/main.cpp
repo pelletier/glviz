@@ -70,7 +70,7 @@ int main() {
   shader::Shader simple_shader("simple.vert", "simple.frag");
   Xyz xyz;
 
-  Obj obj("/Users/tpelletier/code/pelletier/glviz/models/teapot/", "teapot.obj", simple_shader);
+  Obj obj("/Users/tpelletier/code/pelletier/glviz/models/cube/", "cube.obj", simple_shader);
 
   glm::mat4 projection = glm::perspective(45.0f, (GLfloat) width / (GLfloat) height, 0.1f, 10000.0f);
   Renderer renderer(width, height);
