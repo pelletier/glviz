@@ -1,7 +1,8 @@
 #include <iostream>
 #include "Font.h"
 
-font::Font::Font(const Freetype& ft, const std::string& font_path, GLuint size) {
+font::Font::Font(const Freetype& ft, const std::string& font_path, GLuint size)
+    : size(size) {
   std::cout << "Loading font " << font_path << std::endl;
   FT_Face face;
   if (FT_New_Face(ft.lib(), font_path.c_str(), 0, &face)) {

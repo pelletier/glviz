@@ -150,34 +150,12 @@ int main() {
     renderer.render(obj, view);
     renderer.render(xyz, view);
 
-
     std::ostringstream str;
-    str << "elapsed time (s): ";
-    str << delta_time;
+    str << "elapsed time (s): " << delta_time << '\n'
+        << "camera base speed: " << base_camera_speed << '\n'
+        << "camera position: " << camera_pos.x << ","  << camera_pos.y << "," << camera_pos.z << '\n'
+        << "fps: " << int(1.0f / delta_time);
     Text text = {str.str(), glm::vec2(0, 20), 1.0f, glm::vec3(1.0f, 1.0f, 1.0f), consolas_font};
-    renderer.render(text);
-
-    str.str("");
-    str.clear();
-    str << "camera base speed: ";
-    str << base_camera_speed;
-    text.text = str.str();
-    text.position = glm::vec2(0, 40);
-    renderer.render(text);
-
-    str.str("");
-    str.clear();
-    str << "camera position: " << camera_pos.x << ","  << camera_pos.y << "," << camera_pos.z;
-    text.text = str.str();
-    text.position = glm::vec2(0, 60);
-    renderer.render(text);
-
-    str.str("");
-    str.clear();
-    str << "fps: ";
-    str << int(1.0f / delta_time);
-    text.text = str.str();
-    text.position = glm::vec2(0, 80);
     renderer.render(text);
 
     glfwSwapBuffers(window);

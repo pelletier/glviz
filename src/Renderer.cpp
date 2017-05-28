@@ -1,3 +1,4 @@
+#include <iostream>
 #include "Renderer.h"
 
 void Renderer::render(const Drawable &drawable, const glm::mat4 &transfom) const {
@@ -25,11 +26,18 @@ void Renderer::render(const Text &text) {
   glBindVertexArray(text_vao_);
 
   GLfloat x = text.position.x;
+  GLfloat y = text.position.y;
+  const GLfloat delta_line = text.font.size * text.scale;
   for (const auto c : text.text) {
+    if (c == '\n') {
+      y += delta_line;
+      x = text.position.x;
+      continue;
+    }
     const font::Character& ch = text.font.chars.at(c);
 
     GLfloat x_pos = x + ch.bearing.x * text.scale;
-    GLfloat y_pos = screen_height_ - text.position.y - (ch.size.y - ch.bearing.y) * text.scale;
+    GLfloat y_pos = screen_height_ - y - (ch.size.y - ch.bearing.y) * text.scale;
     GLfloat w = ch.size.x * text.scale;
     GLfloat h = ch.size.y * text.scale;
 
