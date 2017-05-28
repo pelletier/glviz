@@ -74,7 +74,7 @@ int main() {
 
   glm::mat4 projection = glm::perspective(45.0f, (GLfloat) width / (GLfloat) height, 0.1f, 100.0f);
   Renderer renderer(width, height);
-  renderer.wireframe_mode = true;
+  renderer.wireframe_mode = false;
 
   GLfloat last_time = 0.0f;
   GLfloat camera_pitch = 0.0f;
@@ -167,10 +167,17 @@ int main() {
 
     str.str("");
     str.clear();
+    str << "camera position: " << camera_pos.x << ","  << camera_pos.y << "," << camera_pos.z;
+    text.text = str.str();
+    text.position = glm::vec2(0, 60);
+    renderer.render(text);
+
+    str.str("");
+    str.clear();
     str << "fps: ";
     str << int(1.0f / delta_time);
     text.text = str.str();
-    text.position = glm::vec2(0, 60);
+    text.position = glm::vec2(0, 80);
     renderer.render(text);
 
     glfwSwapBuffers(window);
