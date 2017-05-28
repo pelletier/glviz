@@ -1,7 +1,7 @@
 #include <iostream>
 #include "Font.h"
 
-font::Font::Font(const Freetype& ft, const std::string& font_path) {
+font::Font::Font(const Freetype& ft, const std::string& font_path, GLuint size) {
   std::cout << "Loading font " << font_path << std::endl;
   FT_Face face;
   if (FT_New_Face(ft.lib(), font_path.c_str(), 0, &face)) {
@@ -9,8 +9,7 @@ font::Font::Font(const Freetype& ft, const std::string& font_path) {
     exit(EXIT_FAILURE); // TODO: more graceful exit
   }
 
-  // extract font-size 48
-  FT_Set_Pixel_Sizes(face, 0, 48);
+  FT_Set_Pixel_Sizes(face, 0, size);
 
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 

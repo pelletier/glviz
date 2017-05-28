@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 
 #include "gl.h"
 #include "glm.h"
@@ -63,7 +64,7 @@ int main() {
   Mouse &mouse = Mouse::global_instance();
 
   Freetype freetype;
-  font::Font consolas_font(freetype, "/Users/tpelletier/code/pelletier/glviz/fonts/consolas.ttf");
+  font::Font consolas_font(freetype, "/Users/tpelletier/code/pelletier/glviz/fonts/consolas.ttf", 20);
 
   std::cout << "Loading shaders" << std::endl;
   shader::Shader simple_shader("simple.vert", "simple.frag");
@@ -80,11 +81,11 @@ int main() {
   GLfloat camera_pitch = 0.0f;
   GLfloat camera_yaw = -90.0f;
 
-  Text text = {"hello world", glm::vec2(200, 100), 1.0f, glm::vec3(1.0f, 1.0f, 1.0f), consolas_font};
 
   while (!glfwWindowShouldClose(window)) {
     GLfloat current_time = (GLfloat) glfwGetTime();
     GLfloat delta_time = current_time - last_time;
+    last_time = current_time;
 
     glfwPollEvents();
 
@@ -139,6 +140,20 @@ int main() {
 
     renderer.render(obj, view);
     renderer.render(xyz, view);
+
+
+    std::ostringstream str;
+    str << "elapsed time (s): ";
+    str << delta_time;
+    Text text = {str.str(), glm::vec2(0, 20), 1.0f, glm::vec3(1.0f, 1.0f, 1.0f), consolas_font};
+    renderer.render(text);
+
+    str.str("");
+    str.clear();
+    str << "fps: ";
+    str << int(1.0f / delta_time);
+    text.text = str.str();
+    text.position = glm::vec2(0, 40);
     renderer.render(text);
 
     glfwSwapBuffers(window);

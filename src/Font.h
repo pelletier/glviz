@@ -16,7 +16,7 @@ namespace font {
 
   class Font {
   public:
-    Font(const Freetype& ft, const std::string& font_path);
+    Font(const Freetype& ft, const std::string& font_path, GLuint size);
     std::map<GLchar, Character> chars;
   };
 }
