@@ -27,43 +27,46 @@ Obj::Obj(std::string base, std::string file_name, shader::Shader& shader) : shad
   std::cout << "Loading " << materials.size() << " textures" << std::endl;
   for (const auto& m : materials) {
     const std::string& texture_name = m.diffuse_texname;
-    std::cout << "Loading texture " << texture_name << " ";
-    if (textures.find(texture_name) == textures.end()) {
-      int width;
-      int height;
-      int components_count;
-      unsigned char* image = stbi_load((base + texture_name).c_str(), &width, &height, &components_count, STBI_default);
-      if (image == nullptr) {
-        std::cerr << "failed" << std::endl;
-        exit(1); // TODO: more graceful exit
+    if (texture_name.size() > 0) {
+      std::cout << "Loading texture " << texture_name << " ";
+      if (textures.find(texture_name) == textures.end()) {
+        int width;
+        int height;
+        int components_count;
+        unsigned char *image = stbi_load((base + texture_name).c_str(), &width, &height, &components_count,
+                                         STBI_default);
+        if (image == nullptr) {
+          std::cerr << "failed" << std::endl;
+          exit(1); // TODO: more graceful exit
+        }
+        GLuint texture;
+        glGenTextures(1, &texture);
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+        switch (components_count) {
+          case 3:
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+            break;
+          case 4:
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+            break;
+          default:
+            std::cerr << "unsupported components count: " << components_count << std::endl;
+            exit(1); // TODO: better exit
+            break;
+        }
+        glGenerateMipmap(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        stbi_image_free(image);
+
+        textures[texture_name] = texture;
+
+        std::cout << "done" << std::endl;
+      } else {
+        std::cout << "skipped" << std::endl;
       }
-      GLuint texture;
-      glGenTextures(1, &texture);
-      glBindTexture(GL_TEXTURE_2D, texture);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-      switch (components_count) {
-        case 3:
-          glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
-          break;
-        case 4:
-          glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
-          break;
-        default:
-          std::cerr << "unsupported components count: " << components_count << std::endl;
-          exit(1); // TODO: better exit
-          break;
-      }
-      glGenerateMipmap(GL_TEXTURE_2D);
-      glBindTexture(GL_TEXTURE_2D, 0);
-      stbi_image_free(image);
-
-      textures[texture_name] = texture;
-
-      std::cout << "done" << std::endl;
-    } else {
-      std::cout << "skipped" << std::endl;
     }
   }
 
