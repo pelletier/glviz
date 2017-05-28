@@ -22,7 +22,7 @@ add_executable(glviz
         src/Freetype.cpp
         src/Text.h
         src/vendor/tiny_obj_loader.h
-        src/vendor/stb_image.h)
+        src/vendor/stb_image.h src/Camera.cpp src/Camera.h)
 
 set_property(TARGET glviz PROPERTY CXX_STANDARD 14)
 set_property(TARGET glviz PROPERTY CXX_STANDARD_REQUIRED ON)

@@ -11,6 +11,7 @@
 #include "Renderer.h"
 #include "Mouse.h"
 #include "Text.h"
+#include "Camera.h"
 
 static bool keys[1024];
 
@@ -70,21 +71,15 @@ int main() {
   shader::Shader simple_shader("simple.vert", "simple.frag");
   Xyz xyz;
 
-  Obj obj("/Users/tpelletier/code/pelletier/glviz/models/dabrovic-sponza/", "sponza.obj", simple_shader);
+  Obj obj("/Users/tpelletier/code/pelletier/glviz/models/cube/", "cube.obj", simple_shader);
 
   glm::mat4 projection = glm::perspective(45.0f, (GLfloat) width / (GLfloat) height, 0.1f, 10000.0f);
   Renderer renderer(width, height);
   renderer.wireframe_mode = false;
 
   GLfloat last_time = 0.0f;
-  GLfloat camera_pitch = 0.0f;
-  GLfloat camera_yaw = -90.0f;
-
-  const GLfloat base_camera_max_speed = 70.f;
-  const GLfloat base_camera_min_speed = 0.01f;
-  GLfloat base_camera_speed = 0.05f;
-  glm::vec3 camera_pos(0.0f, 0.0f, 3.0f);
-  glm::vec3 camera_up(0.0f, 1.0f, 0.0f);
+  camera::Camera camera;
+  camera.mode = camera::CENTERED;
 
   while (!glfwWindowShouldClose(window)) {
     GLfloat current_time = (GLfloat) glfwGetTime();
@@ -95,53 +90,63 @@ int main() {
 
     // Process camera-related events
 
-    if (mouse.is_right_button_down()) {
-      const glm::vec2 offset = mouse.get_offset();
+    glm::vec3 camera_target;
 
-      camera_pitch += offset.y;
-      if (camera_pitch > 89.0f) {
-        camera_pitch = 89.0f;
-      } else if (camera_pitch < -89.0f) {
-        camera_pitch = -89.0f;
+    if (camera.mode == camera::FREE_FLIGHT) {
+      camera.offset_speed(-mouse.get_scroll_offset().y);
+      const GLfloat camera_speed = delta_time * camera.base_speed();
+
+      if (mouse.is_right_button_down()) {
+        const glm::vec2 offset = mouse.get_offset();
+        camera.offset_pitch(offset.y);
+        camera.offset_yaw(offset.x);
+      }
+      camera.update_direction_from_angles();
+
+      if (keys[GLFW_KEY_W]) {
+        camera.pos += camera_speed * camera.direction;
+      }
+      if (keys[GLFW_KEY_S]) {
+        camera.pos -= camera_speed * camera.direction;
+      }
+      if (keys[GLFW_KEY_A]) {
+        camera.pos -= camera_speed * glm::normalize(glm::cross(camera.direction, camera.up));
+      }
+      if (keys[GLFW_KEY_D]) {
+        camera.pos += camera_speed * glm::normalize(glm::cross(camera.direction, camera.up));
+      }
+      camera_target = camera.pos + camera.direction;
+    } else if (camera.mode == camera::CENTERED) {
+      const GLfloat camera_speed = delta_time * camera.base_speed();
+      const glm::vec3 center(0, 0, 0);
+      const glm::vec3 direction = glm::normalize(center - camera.pos);
+
+      if (mouse.is_right_button_down()) {
+        const glm::vec2 offset = mouse.get_offset();
+        const GLfloat theta = glm::radians(offset.x * camera_speed);
+        const GLfloat dist = glm::distance(center, camera.pos);
+
+        const glm::vec3 right = glm::normalize(glm::cross(direction, camera.up));
+        camera.pos += direction * (dist - dist * glm::cos(theta)) - right * dist * glm::sin(theta);
+
+        const GLfloat gamma = glm::radians(offset.y * camera_speed);
+
+        const glm::vec3 up = glm::normalize(glm::cross(right, direction));
+        camera.pos += direction * (dist - dist * glm::cos(gamma)) - up * dist * glm::sin(gamma);
       }
 
-      camera_yaw += offset.x;
-    }
+      camera.pos += mouse.get_scroll_offset().y * camera_speed * direction;
 
-    base_camera_speed -= mouse.get_scroll_offset().y;
-    if (base_camera_speed < base_camera_min_speed) {
-      base_camera_speed = base_camera_min_speed;
-    } else if (base_camera_speed > base_camera_max_speed) {
-      base_camera_speed = base_camera_max_speed;
-    }
+      camera_target = center;
 
-    const GLfloat camera_speed = delta_time * base_camera_speed;
+    } else {
 
-    GLfloat cos_pitch = glm::cos(glm::radians(camera_pitch));
-    GLfloat sin_pitch = glm::sin(glm::radians(camera_pitch));
-    GLfloat cos_yaw = glm::cos(glm::radians(camera_yaw));
-    GLfloat sin_yaw = glm::sin(glm::radians(camera_yaw));
-
-    glm::vec3 camera_direction = glm::normalize(glm::vec3(cos_pitch * cos_yaw,
-                                                          sin_pitch,
-                                                          cos_pitch * sin_yaw));
-
-    if (keys[GLFW_KEY_W]) {
-      camera_pos += camera_speed * camera_direction;
-    }
-    if (keys[GLFW_KEY_S]) {
-      camera_pos -= camera_speed * camera_direction;
-    }
-    if (keys[GLFW_KEY_A]) {
-      camera_pos -= camera_speed * glm::normalize(glm::cross(camera_direction, camera_up));
-    }
-    if (keys[GLFW_KEY_D]) {
-      camera_pos += camera_speed * glm::normalize(glm::cross(camera_direction, camera_up));
+      std::cerr << "incorrect camera mode: " << camera.mode << std::endl;
+      exit(1);
     }
 
     // Compute camera
-    glm::vec3 camera_target(camera_pos + camera_direction);
-    glm::mat4 view = projection * glm::lookAt(camera_pos, camera_target, camera_up);
+    glm::mat4 view = projection * glm::lookAt(camera.pos, camera_target, camera.up);
 
     // Render scene!
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -152,8 +157,8 @@ int main() {
 
     std::ostringstream str;
     str << "elapsed time (s): " << delta_time << '\n'
-        << "camera base speed: " << base_camera_speed << '\n'
-        << "camera position: " << camera_pos.x << ","  << camera_pos.y << "," << camera_pos.z << '\n'
+        << "camera base speed: " << camera.base_speed() << '\n'
+        << "camera position: " << camera.pos.x << ","  << camera.pos.y << "," << camera.pos.z << '\n'
         << "fps: " << int(1.0f / delta_time);
     Text text = {str.str(), glm::vec2(0, 20), 1.0f, glm::vec3(1.0f, 1.0f, 1.0f), consolas_font};
     renderer.render(text);
