@@ -72,7 +72,7 @@ int main() {
 
   Obj obj("/Users/tpelletier/code/pelletier/glviz/models/teapot/", "teapot.obj", simple_shader);
 
-  glm::mat4 projection = glm::perspective(45.0f, (GLfloat) width / (GLfloat) height, 0.1f, 100.0f);
+  glm::mat4 projection = glm::perspective(45.0f, (GLfloat) width / (GLfloat) height, 0.1f, 10000.0f);
   Renderer renderer(width, height);
   renderer.wireframe_mode = false;
 
