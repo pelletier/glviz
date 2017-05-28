@@ -94,12 +94,14 @@ Obj::Obj(std::string base, std::string file_name, shader::Shader& shader) : shad
       for (int i = 0; i < 3; ++i) {
         std::cout << "Vertex " << i << " ";
         const tinyobj::index_t &vertex_indices = s.mesh.indices[triangle_idx * 3 + i];
-        std::cout << "vertex_index=" << triangle_idx * 3 + i << std::endl;
+
         vertex_attrs_per_mat[material_id].push_back(attrib.vertices[vertex_indices.vertex_index * 3 + 0]); // x
         vertex_attrs_per_mat[material_id].push_back(attrib.vertices[vertex_indices.vertex_index * 3 + 1]); // y
         vertex_attrs_per_mat[material_id].push_back(attrib.vertices[vertex_indices.vertex_index * 3 + 2]); // z
-        vertex_attrs_per_mat[material_id].push_back(attrib.texcoords[vertex_indices.vertex_index * 2 + 0]); // tex s
-        vertex_attrs_per_mat[material_id].push_back(attrib.texcoords[vertex_indices.vertex_index * 2 + 1]); // tex t
+
+        vertex_attrs_per_mat[material_id].push_back(attrib.texcoords[vertex_indices.texcoord_index * 2 + 0]); // tex s
+        vertex_attrs_per_mat[material_id].push_back(attrib.texcoords[vertex_indices.texcoord_index * 2 + 1]); // tex t
+
         vertex_index_per_mat[material_id].push_back((GLuint) vertex_index_per_mat[material_id].size());
       }
     }
