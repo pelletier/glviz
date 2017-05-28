@@ -70,17 +70,21 @@ int main() {
   shader::Shader simple_shader("simple.vert", "simple.frag");
   Xyz xyz;
 
-  Obj obj("/Users/tpelletier/code/pelletier/glviz/models/cube/", "cube.Obj", simple_shader);
+  Obj obj("/Users/tpelletier/code/pelletier/glviz/models/teapot/", "teapot.obj", simple_shader);
 
   glm::mat4 projection = glm::perspective(45.0f, (GLfloat) width / (GLfloat) height, 0.1f, 100.0f);
   Renderer renderer(width, height);
   renderer.wireframe_mode = true;
 
   GLfloat last_time = 0.0f;
-
   GLfloat camera_pitch = 0.0f;
   GLfloat camera_yaw = -90.0f;
 
+  const GLfloat base_camera_max_speed = 70.f;
+  const GLfloat base_camera_min_speed = 0.01f;
+  GLfloat base_camera_speed = 0.05f;
+  glm::vec3 camera_pos(0.0f, 0.0f, 3.0f);
+  glm::vec3 camera_up(0.0f, 1.0f, 0.0f);
 
   while (!glfwWindowShouldClose(window)) {
     GLfloat current_time = (GLfloat) glfwGetTime();
@@ -104,8 +108,14 @@ int main() {
       camera_yaw += offset.x;
     }
 
-    static const GLfloat camera_speed = delta_time * 0.05f;
-    static glm::vec3 camera_pos(0.0f, 0.0f, 3.0f);
+    base_camera_speed -= mouse.get_scroll_offset().y;
+    if (base_camera_speed < base_camera_min_speed) {
+      base_camera_speed = base_camera_min_speed;
+    } else if (base_camera_speed > base_camera_max_speed) {
+      base_camera_speed = base_camera_max_speed;
+    }
+
+    const GLfloat camera_speed = delta_time * base_camera_speed;
 
     GLfloat cos_pitch = glm::cos(glm::radians(camera_pitch));
     GLfloat sin_pitch = glm::sin(glm::radians(camera_pitch));
@@ -115,7 +125,6 @@ int main() {
     glm::vec3 camera_direction = glm::normalize(glm::vec3(cos_pitch * cos_yaw,
                                                           sin_pitch,
                                                           cos_pitch * sin_yaw));
-    static glm::vec3 camera_up(0.0f, 1.0f, 0.0f);
 
     if (keys[GLFW_KEY_W]) {
       camera_pos += camera_speed * camera_direction;
@@ -150,10 +159,18 @@ int main() {
 
     str.str("");
     str.clear();
+    str << "camera base speed: ";
+    str << base_camera_speed;
+    text.text = str.str();
+    text.position = glm::vec2(0, 40);
+    renderer.render(text);
+
+    str.str("");
+    str.clear();
     str << "fps: ";
     str << int(1.0f / delta_time);
     text.text = str.str();
-    text.position = glm::vec2(0, 40);
+    text.position = glm::vec2(0, 60);
     renderer.render(text);
 
     glfwSwapBuffers(window);
