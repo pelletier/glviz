@@ -99,8 +99,10 @@ Obj::Obj(std::string base, std::string file_name, shader::Shader& shader) : shad
         vertex_attrs_per_mat[material_id].push_back(attrib.vertices[vertex_indices.vertex_index * 3 + 1]); // y
         vertex_attrs_per_mat[material_id].push_back(attrib.vertices[vertex_indices.vertex_index * 3 + 2]); // z
 
+        // texture coordinates
+        // important: t is reversed in the examples i'm running (Direct3D format)
         vertex_attrs_per_mat[material_id].push_back(attrib.texcoords[vertex_indices.texcoord_index * 2 + 0]); // tex s
-        vertex_attrs_per_mat[material_id].push_back(attrib.texcoords[vertex_indices.texcoord_index * 2 + 1]); // tex t
+        vertex_attrs_per_mat[material_id].push_back(1.0f - attrib.texcoords[vertex_indices.texcoord_index * 2 + 1]); // tex t
 
         vertex_index_per_mat[material_id].push_back((GLuint) vertex_index_per_mat[material_id].size());
       }
