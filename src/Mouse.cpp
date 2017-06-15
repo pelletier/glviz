@@ -27,8 +27,8 @@ Mouse &Mouse::global_instance() {
 }
 
 void Mouse::glfw_mouse_scroll_callback(double xoffset, double yoffset) {
-  scroll_offset_.x += xoffset;
-  scroll_offset_.y += yoffset;
+  scroll_offset_.x += (float)xoffset;
+  scroll_offset_.y += (float)yoffset;
 }
 
 void Mouse::glfw_mouse_button_callback(int button, int action, int mode) {

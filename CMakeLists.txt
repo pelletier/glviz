@@ -27,24 +27,42 @@ add_executable(glviz
 set_property(TARGET glviz PROPERTY CXX_STANDARD 14)
 set_property(TARGET glviz PROPERTY CXX_STANDARD_REQUIRED ON)
 
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -Werror")
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wall -Werror")
+if(MSVC)
+else()
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -Werror")
+	set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wall -Werror")
+endif()
+
+if(WIN32)
+	set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/win64/cmake/)
+	set(GLFW_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/win64/glfw-3.2.1)
+	set(GLEW_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/win64/glew-2.0.0)
+	set(GLM_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/win64/glm-0.9.8.4)
+	
+	add_subdirectory(win64/freetype-2.8)
+	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/win64/freetype-2.8/include)
+	target_link_libraries(glviz freetype)
+
+	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/win64/glew-2.0.0/include)
+	target_link_libraries(glviz ${CMAKE_CURRENT_SOURCE_DIR}/win64/glew-2.0.0/lib/Release/x64/glew32s.lib)
+else()
+	find_package(Freetype REQUIRED)
+	include_directories(${FREETYPE_INCLUDE_DIRS})
+	target_link_libraries(glviz ${FREETYPE_LIBRARIES})
+
+	find_package(GLEW REQUIRED)
+	include_directories(${GLEW_INCLUDE_DIR})
+	target_link_libraries(glviz ${GLEW_LIBRARY})
+endif()
 
 find_package(glfw3 3.2 REQUIRED)
 find_package(OpenGL REQUIRED)
-find_package(GLEW REQUIRED)
 find_package(GLM REQUIRED)
-find_package(Freetype REQUIRED)
 
-target_link_libraries(glviz glfw)
-
-include_directories(${FREETYPE_INCLUDE_DIRS})
-target_link_libraries(glviz ${FREETYPE_LIBRARIES})
+include_directories(${GLFW_INCLUDE_DIR})
+target_link_libraries(glviz ${GLFW_LIBRARIES})
 
 include_directories(${GLM_INCLUDE_DIR})
 
 include_directories(${OPENGL_INCLUDE_DIR})
 target_link_libraries(glviz ${OPENGL_gl_LIBRARY})
-
-include_directories(${GLEW_INCLUDE_DIR})
-target_link_libraries(glviz ${GLEW_LIBRARY})
